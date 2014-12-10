@@ -70,9 +70,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         let thisTask = fetchedResultsController.objectAtIndexPath(indexPath) as TaskModel
-        
-        println(thisTask)
-        
+                
         var cell: TaskCell = tableView.dequeueReusableCellWithIdentifier("myCell") as TaskCell
         
         cell.taskLabel.text = thisTask.task
@@ -85,9 +83,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     //UITableViewDelegate
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        
-        println(indexPath.row)
-        
         performSegueWithIdentifier("showTaskDetail", sender: self)
     }
     
@@ -96,26 +91,43 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        if section == 0 {
-            return "To do"
-        }
-        else {
-            return "Completed"
+        if self.fetchedResultsController.sections?.count == 1 {
+            let fetchedObjects = self.fetchedResultsController.fetchedObjects!
+            let task: TaskModel = fetchedObjects[0] as TaskModel
+            
+            if task.completed as Bool == true {
+                return "COMPLETED"
+            } else {
+                return "TO DO"
+            }
+        } else {
+            if section == 0 {
+                return "To do"
+            } else {
+                return "Completed"
+            }
         }
     }
     
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         
-        let thisTask = fetchedResultsController.objectAtIndexPath(indexPath) as TaskModel
+        var thisTask = fetchedResultsController.objectAtIndexPath(indexPath) as TaskModel
         
-        if indexPath.section == 0 {
-            thisTask.completed = true
-        }
-        else {
-            thisTask.completed = false
-        }
+        thisTask.completed = !Bool(thisTask.completed)
+        
         (UIApplication.sharedApplication().delegate as AppDelegate).saveContext()
     }
+    
+    //    Renaming the delete button tittle
+    func tableView(tableView: UITableView, titleForDeleteConfirmationButtonForRowAtIndexPath indexPath: NSIndexPath) -> String {
+        let thisTask = fetchedResultsController.objectAtIndexPath(indexPath) as TaskModel
+        if thisTask.completed == true {
+            return "Uncomplete"
+        } else {
+            return "Complete"
+        }
+    }
+
     
     // NSFetchedResultsControllerDelegate
     
